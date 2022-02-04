@@ -2,13 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,7 +14,9 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import tourGuide.dto.CurrentLocationDTO;
 import tourGuide.helper.InternalTestHelper;
+import tourGuide.dto.NearAttractionDTO;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
@@ -100,6 +96,42 @@ public class TourGuideService {
 		
 		return nearbyAttractions;
 	}
+
+	public List<CurrentLocationDTO> getAllCurrentLocations(){
+		List<CurrentLocationDTO> currentLocationDTOList = new ArrayList<>();
+		List<User> users = getAllUsers();
+		for (User user : users) {
+			CurrentLocationDTO currentLocationDTO = new CurrentLocationDTO();
+			currentLocationDTO.setLocation( user.getLastVisitedLocation().location);
+			currentLocationDTO.setUserID(user.getUserId());
+			currentLocationDTOList.add(currentLocationDTO);
+		}
+		return currentLocationDTOList;
+	}
+
+	public List<NearAttractionDTO> getNearestAttractions(VisitedLocation visitedLocation, int number){
+		List<NearAttractionDTO> attractionsDTOList = new ArrayList<>();
+		List<Attraction> attractions = getNearByAttractionsSortedByDistance(visitedLocation);
+		for (int i = 0; i< number; i++){
+			Attraction at = attractions.get(i);
+			NearAttractionDTO attractionDTO = new NearAttractionDTO();
+			attractionDTO.setAttractionName(at.attractionName);
+			attractionDTO.setAttractionLocation(new Location(at.latitude, at.longitude));
+			attractionDTO.setUserLocation(visitedLocation.location);
+			attractionDTO.setDistanceMiles(rewardsService.getDistance(visitedLocation.location, new Location(at.latitude, at.longitude)));
+			attractionDTO.setRewardPts(10); // voir comment récupérer les points sans utiliser le user
+			attractionsDTOList.add(attractionDTO);
+		}
+		return attractionsDTOList;
+	}
+
+	private List<Attraction> getNearByAttractionsSortedByDistance(VisitedLocation visitedLocation){
+		List<Attraction> attractions = getNearByAttractions(visitedLocation);
+		return attractions.stream().sorted(
+				Comparator.comparingDouble((Attraction at) -> rewardsService.getDistance(visitedLocation.location, new Location(at.latitude, at.longitude)))
+		).collect(Collectors.toList());
+	}
+
 	
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() { 

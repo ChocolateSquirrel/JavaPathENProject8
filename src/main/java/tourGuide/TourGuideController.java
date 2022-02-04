@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jsoniter.output.JsonStream;
 
 import gpsUtil.location.VisitedLocation;
+import tourGuide.dto.CurrentLocationDTO;
+import tourGuide.dto.NearAttractionDTO;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tripPricer.Provider;
@@ -40,6 +42,14 @@ public class TourGuideController {
         // The distance in miles between the user's location and each of the attractions.
         // The reward points for visiting each Attraction.
         //    Note: Attraction reward points can be gathered from RewardsCentral
+
+    @RequestMapping("/getNearestbyAttractions")
+    public String getNearestbyAttractions(@RequestParam String userName) {
+        VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
+        return JsonStream.serialize(tourGuideService.getNearestAttractions(visitedLocation, 5));
+    }
+
+
     @RequestMapping("/getNearbyAttractions") 
     public String getNearbyAttractions(@RequestParam String userName) {
     	VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
@@ -62,8 +72,7 @@ public class TourGuideController {
     	//        "019b04a9-067a-4c76-8817-ee75088c3822": {"longitude":-48.188821,"latitude":74.84371} 
     	//        ...
     	//     }
-    	
-    	return JsonStream.serialize("");
+    	return JsonStream.serialize(tourGuideService.getAllCurrentLocations());
     }
     
     @RequestMapping("/getTripDeals")
