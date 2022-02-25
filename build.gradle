@@ -16,7 +16,7 @@ apply plugin: "jacoco"
 
 
 bootJar {
-    baseName = 'tourGuide'
+    baseName = 'ms-user'
     version =  '1.0.0'
 }
 
