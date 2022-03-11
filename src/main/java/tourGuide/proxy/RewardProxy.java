@@ -2,6 +2,7 @@ package tourGuide.proxy;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
+import tourGuide.dto.AskNearAttractionsDTO;
 import tourGuide.dto.DistanceDTO;
 import tourGuide.dto.UserRewardDTO;
 import tourGuide.model.Attraction;
@@ -21,7 +22,10 @@ public interface RewardProxy {
     @PostMapping("getDistance")
     public double getDistance(@RequestBody DistanceDTO distanceDTO);
 
-    @GetMapping("getNearAttractions/{userId}")
-    public List<Attraction> getNearAttractions(@PathVariable("userId") String userId);
+    @PostMapping("getNearByAttractions")
+    public List<Attraction> getNearByAttractions(@RequestBody AskNearAttractionsDTO askNearAttractionsDTO);
+
+    @PostMapping("getNearestAttractions")
+    public List<Attraction> getNearestAttractions(@RequestBody AskNearAttractionsDTO askNearAttractionsDTO);
 
 }

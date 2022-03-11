@@ -4,6 +4,7 @@ import com.jsoniter.output.JsonStream;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tourGuide.dto.CurrentLocationDTO;
 import tourGuide.dto.NearAttractionDTO;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -19,18 +20,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final GpsProxy gpsProxy;
-    private final RewardProxy rewardProxy;
 
-    public UserController(UserService userService, GpsProxy gpsProxy, RewardProxy rewardProxy) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.gpsProxy = gpsProxy;
-        this.rewardProxy = rewardProxy;
-    }
-
-    @RequestMapping("/getAttractions")
-    public List<Attraction> getAttractions() {
-        return gpsProxy.getAttractions();
     }
 
     @RequestMapping("/")
@@ -50,20 +42,21 @@ public class UserController {
         return userService.getNearestAttractions(user.getUserId(), 5);
     }
 
-/*    @RequestMapping("/getNearbyAttractions")
-    public String getNearbyAttractions(@RequestParam String userName) {
-        VisitedLocation visitedLocation = userService.getLocation(userService.getUser(userName));
-        return JsonStream.serialize(userService.getNearByAttractions(visitedLocation));
-    }*/
+    @RequestMapping("/getNearByAttractions")
+    public List<NearAttractionDTO> getNearbyAttractions(@RequestParam String userName) {
+        User user = userService.getUser(userName);
+        return userService.getNearByAttractions(user.getUserId(), 5);
+    }
 
     @RequestMapping("/getRewards")
     public String getRewards(@RequestParam String userName) {
-        return JsonStream.serialize(userService.getUserRewards(userService.getUser(userName)));
+        User user = userService.getUser(userName);
+        return JsonStream.serialize(userService.getUserRewards(user));
     }
 
     @RequestMapping("/getAllCurrentLocations")
-    public String getAllCurrentLocations() {
-        return JsonStream.serialize(userService.getAllCurrentLocations());
+    public List<CurrentLocationDTO> getAllCurrentLocations() {
+        return userService.getAllCurrentLocations();
     }
 
     @RequestMapping("/getTripDeals")

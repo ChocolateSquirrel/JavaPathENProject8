@@ -2,35 +2,36 @@ package tourGuide.dto;
 
 import lombok.Data;
 import tourGuide.model.Location;
+import tourGuide.model.VisitedLocation;
 
 import java.util.UUID;
 
 @Data
 public class CurrentLocationDTO {
-    private UUID userID;
-    private Location location;
+    private String userName;
+    private VisitedLocation visitedLocation;
 
     public CurrentLocationDTO() {
     }
 
-    public CurrentLocationDTO(UUID userID, Location location) {
-        this.userID = userID;
-        this.location = location;
+    public CurrentLocationDTO(String userName, VisitedLocation visitedLocation) {
+        this.userName = userName;
+        this.visitedLocation = visitedLocation;
     }
 
-    public UUID getUserID() {
-        return userID;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserID(UUID userID) {
-        this.userID = userID;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public Location getLocation() {
-        return location;
+    public VisitedLocation getVisitedLocation() {
+        return visitedLocation;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setVisitedLocation(VisitedLocation visitedLocation) {
+        this.visitedLocation = visitedLocation;
     }
 }

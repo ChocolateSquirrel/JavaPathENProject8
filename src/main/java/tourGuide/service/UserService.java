@@ -58,6 +58,17 @@ public class UserService {
         return visitedLocation;
     }
 
+    public List<CurrentLocationDTO> getAllCurrentLocations(){
+        List<CurrentLocationDTO> currentLocationDTOList = new ArrayList<>();
+        for (User user : getAllUsers()) {
+            CurrentLocationDTO currentLocationDTO = new CurrentLocationDTO();
+            currentLocationDTO.setVisitedLocation(getUserLocation(user));
+            currentLocationDTO.setUserName(user.getUserName());
+            currentLocationDTOList.add(currentLocationDTO);
+        }
+        return currentLocationDTOList;
+    }
+
     public User getUser(String userName) {
         return internalUserMap.get(userName);
     }
@@ -92,22 +103,27 @@ public class UserService {
         rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
     }
 
-    public List<CurrentLocationDTO> getAllCurrentLocations(){
-        List<CurrentLocationDTO> currentLocationDTOList = new ArrayList<>();
-        for (User user : getAllUsers()) {
-            CurrentLocationDTO currentLocationDTO = new CurrentLocationDTO();
-            currentLocationDTO.setLocation( user.getLastVisitedLocation().getLocation());
-            currentLocationDTO.setUserID(user.getUserId());
-            currentLocationDTOList.add(currentLocationDTO);
+    public List<NearAttractionDTO> getNearByAttractions(UUID userId, int number) {
+        List<NearAttractionDTO> attractionsDTOList = new ArrayList<>();
+        Location userLoc = gpsProxy.getUserLocation(String.valueOf(userId)).getLocation();
+        List<Attraction> attractions =  rewardProxy.getNearByAttractions(new AskNearAttractionsDTO(userLoc, number));
+        for (Attraction attraction : attractions){
+            NearAttractionDTO attractionDTO = new NearAttractionDTO();
+            Location attLoc = new Location(attraction.getLatitude(), attraction.getLongitude());
+            attractionDTO.setAttractionName(attraction.getAttractionName());
+            attractionDTO.setAttractionLocation(attLoc);
+            attractionDTO.setUserLocation(userLoc);
+            attractionDTO.setDistanceMiles(rewardProxy.getDistance(new DistanceDTO(userLoc, attLoc)));
+            attractionDTO.setRewardPts(rewardProxy.getRewardPoint(String.valueOf(attraction.getAttractionId()), String.valueOf(userId)));
+            attractionsDTOList.add(attractionDTO);
         }
-        return currentLocationDTOList;
+        return attractionsDTOList;
     }
 
     public List<NearAttractionDTO> getNearestAttractions(UUID userId, int number){
         List<NearAttractionDTO> attractionsDTOList = new ArrayList<>();
         Location userLoc = gpsProxy.getUserLocation(String.valueOf(userId)).getLocation();
-        List<Attraction> attractions = rewardProxy.getNearAttractions(String.valueOf(userId));
-        if (attractions.size() > number) attractions = attractions.subList(0, number - 1);
+        List<Attraction> attractions = rewardProxy.getNearestAttractions(new AskNearAttractionsDTO(userLoc, number));
         for (Attraction attraction : attractions){
             NearAttractionDTO attractionDTO = new NearAttractionDTO();
             Location attLoc = new Location(attraction.getLatitude(), attraction.getLongitude());
@@ -173,6 +189,7 @@ public class UserService {
         LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
         return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
     }
+
 
 }
 
