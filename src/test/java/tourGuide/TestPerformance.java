@@ -1,3 +1,4 @@
+/*
 package tourGuide;
 
 import static org.junit.Assert.assertTrue;
@@ -12,18 +13,21 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
+import org.springframework.boot.test.context.SpringBootTest;
 import rewardCentral.RewardCentral;
 
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
+import tourGuide.proxy.GpsProxy;
 import tourGuide.service.UserService;
 import tourGuide.user.User;
 
+@SpringBootTest
 public class TestPerformance {
 	
-	/*
-	 * A note on performance improvements:
+*/
+/*	 * A note on performance improvements:
 	 *     
 	 *     The number of users generated for the high volume tests can be easily adjusted via this method:
 	 *     
@@ -39,8 +43,10 @@ public class TestPerformance {
 	 *     		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
      *
      *     highVolumeGetRewards: 100,000 users within 20 minutes:
-	 *          assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
-	 */
+	 *          assertTrue(TimeUnit.MINUTES.toSeconds(20) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));*//*
+
+
+
 	
 	@Ignore
 	@Test
@@ -69,21 +75,20 @@ public class TestPerformance {
 	@Ignore
 	@Test
 	public void highVolumeGetRewards() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
+		GpsProxy gpsUtil = new GpsProxy();
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
 		InternalTestHelper.setInternalUserNumber(100);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		UserService tourGuideService = new UserService(gpsUtil, rewardsService);
+		UserService userService = new UserService(gpsUtil, rewardsService);
 		
 	    Attraction attraction = gpsUtil.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();
 		allUsers = tourGuideService.getAllUsers();
 		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
 	     
-	    allUsers.forEach(u -> rewardsService.calculateRewards(u));
+	    allUsers.forEach(u -> userService.calculateRewards(u));
 	    
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);
@@ -96,3 +101,4 @@ public class TestPerformance {
 	}
 	
 }
+*/

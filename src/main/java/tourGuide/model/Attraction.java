@@ -1,13 +1,18 @@
 package tourGuide.model;
 
+import lombok.Data;
+
 import java.util.UUID;
 
+@Data
 public class Attraction extends Location {
-    public final String attractionName;
-    public final String city;
-    public final String state;
-    public final UUID attractionId;
+    private String attractionName;
+    private String city;
+    private String state;
+    private UUID attractionId;
 
+
+    public Attraction() {}
 
     public Attraction(String attractionName, String city, String state, double latitude, double longitude) {
         super(latitude, longitude);

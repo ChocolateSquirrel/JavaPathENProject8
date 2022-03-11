@@ -3,12 +3,13 @@ package tourGuide.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import tourGuide.dto.CurrentLocationDTO;
-import tourGuide.dto.NearAttractionDTO;
+import tourGuide.dto.*;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
 import tourGuide.model.VisitedLocation;
+import tourGuide.proxy.GpsProxy;
+import tourGuide.proxy.RewardProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
@@ -25,16 +26,16 @@ import java.util.stream.IntStream;
 public class UserService {
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private final GpsUtil gpsUtil;
-    private final RewardsService rewardsService;
+    private final GpsProxy gpsProxy;
+    private final RewardProxy rewardProxy;
 
     private final TripPricer tripPricer = new TripPricer();
     public final Tracker tracker;
     boolean testMode = true;
 
-    public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
-        this.gpsUtil = gpsUtil;
-        this.rewardsService = rewardsService;
+    public UserService(GpsProxy gpsProxy, RewardProxy rewardProxy) {
+        this.gpsProxy = gpsProxy;
+        this.rewardProxy = rewardProxy;
 
         if(testMode) {
             logger.info("TestMode enabled");
@@ -80,56 +81,44 @@ public class UserService {
     }
 
     public VisitedLocation trackUserLocation(User user) {
-        VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+        VisitedLocation visitedLocation = gpsProxy.getUserLocation(user.getUserId().toString());
         user.addToVisitedLocations(visitedLocation);
-        rewardsService.calculateRewards(user);
+        calculateRewards(user);
         return visitedLocation;
     }
 
-    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-        List<Attraction> nearbyAttractions = new ArrayList<>();
-        for(Attraction attraction : gpsUtil.getAttractions()) {
-            if(rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-                nearbyAttractions.add(attraction);
-            }
-        }
-
-        return nearbyAttractions;
+    public void calculateRewards(User user){
+        UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
+        rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
     }
 
     public List<CurrentLocationDTO> getAllCurrentLocations(){
         List<CurrentLocationDTO> currentLocationDTOList = new ArrayList<>();
-        List<User> users = getAllUsers();
-        for (User user : users) {
+        for (User user : getAllUsers()) {
             CurrentLocationDTO currentLocationDTO = new CurrentLocationDTO();
-            currentLocationDTO.setLocation( user.getLastVisitedLocation().location);
+            currentLocationDTO.setLocation( user.getLastVisitedLocation().getLocation());
             currentLocationDTO.setUserID(user.getUserId());
             currentLocationDTOList.add(currentLocationDTO);
         }
         return currentLocationDTOList;
     }
 
-    public List<NearAttractionDTO> getNearestAttractions(VisitedLocation visitedLocation, int number){
+    public List<NearAttractionDTO> getNearestAttractions(UUID userId, int number){
         List<NearAttractionDTO> attractionsDTOList = new ArrayList<>();
-        List<Attraction> attractions = getNearByAttractionsSortedByDistance(visitedLocation);
-        for (int i = 0; i< number; i++){
-            Attraction at = attractions.get(i);
+        Location userLoc = gpsProxy.getUserLocation(String.valueOf(userId)).getLocation();
+        List<Attraction> attractions = rewardProxy.getNearAttractions(String.valueOf(userId));
+        if (attractions.size() > number) attractions = attractions.subList(0, number - 1);
+        for (Attraction attraction : attractions){
             NearAttractionDTO attractionDTO = new NearAttractionDTO();
-            attractionDTO.setAttractionName(at.attractionName);
-            attractionDTO.setAttractionLocation(new Location(at.latitude, at.longitude));
-            attractionDTO.setUserLocation(visitedLocation.location);
-            attractionDTO.setDistanceMiles(rewardsService.getDistance(visitedLocation.location, new Location(at.latitude, at.longitude)));
-            attractionDTO.setRewardPts(10); // voir comment récupérer les points sans utiliser le user
+            Location attLoc = new Location(attraction.getLatitude(), attraction.getLongitude());
+            attractionDTO.setAttractionName(attraction.getAttractionName());
+            attractionDTO.setAttractionLocation(attLoc);
+            attractionDTO.setUserLocation(userLoc);
+            attractionDTO.setDistanceMiles(rewardProxy.getDistance(new DistanceDTO(userLoc, attLoc)));
+            attractionDTO.setRewardPts(rewardProxy.getRewardPoint(String.valueOf(attraction.getAttractionId()), String.valueOf(userId)));
             attractionsDTOList.add(attractionDTO);
         }
         return attractionsDTOList;
-    }
-
-    private List<Attraction> getNearByAttractionsSortedByDistance(VisitedLocation visitedLocation){
-        List<Attraction> attractions = getNearByAttractions(visitedLocation);
-        return attractions.stream().sorted(
-                Comparator.comparingDouble((Attraction at) -> rewardsService.getDistance(visitedLocation.location, new Location(at.latitude, at.longitude)))
-        ).collect(Collectors.toList());
     }
 
 
