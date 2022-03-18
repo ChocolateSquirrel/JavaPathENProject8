@@ -1,18 +1,17 @@
 package tourGuide;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.dto.NearAttractionDTO;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
@@ -23,7 +22,10 @@ import tourGuide.service.UserService;
 import tourGuide.user.User;
 import tripPricer.Provider;
 
+import static org.junit.Assert.*;
+
 @SpringBootTest
+@RunWith(SpringRunner.class)
 public class TestTourGuideService {
 
     @Autowired
@@ -99,8 +101,7 @@ public class TestTourGuideService {
 		
 		assertEquals(user.getUserId(), visitedLocation.getUserId());
 	}
-	
-	@Ignore // Not yet implemented
+
 	@Test
 	public void getNearbyAttractions() {
         InternalTestHelper.setInternalUserNumber(0);

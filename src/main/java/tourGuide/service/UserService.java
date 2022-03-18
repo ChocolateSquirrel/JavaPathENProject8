@@ -51,6 +51,10 @@ public class UserService {
         return user.getUserRewards();
     }
 
+    public List<Attraction> getAttractions() {
+        return gpsProxy.getAttractions();
+    }
+
     public VisitedLocation getUserLocation(User user) {
         VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
                 user.getLastVisitedLocation() :
@@ -99,8 +103,13 @@ public class UserService {
     }
 
     public void calculateRewards(User user){
+        /*UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
+        rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);*/
         UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
-        rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
+        List<UserReward> userRewards = rewardProxy.calculateRewards(userRewardDTO);
+        for (UserReward userReward : userRewards){
+            user.addUserReward(userReward);
+        }
     }
 
     public List<NearAttractionDTO> getNearByAttractions(UUID userId, int number) {
@@ -135,6 +144,10 @@ public class UserService {
             attractionsDTOList.add(attractionDTO);
         }
         return attractionsDTOList;
+    }
+
+    public void setProximityBuffer(int proximityBuffer){
+
     }
 
 

@@ -28,4 +28,6 @@ public interface RewardProxy {
     @PostMapping("getNearestAttractions")
     public List<Attraction> getNearestAttractions(@RequestBody AskNearAttractionsDTO askNearAttractionsDTO);
 
+    @PostMapping("setProximityBuffer")
+    public void setProximityBuffer(@RequestBody int proximityBuffer);
 }

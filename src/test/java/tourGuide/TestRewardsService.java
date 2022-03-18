@@ -11,8 +11,10 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -23,6 +25,7 @@ import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 public class TestRewardsService {
 
 	@Autowired
@@ -52,20 +55,11 @@ public class TestRewardsService {
 		userService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
 	}
-	
-/*	@Test
-	public void isWithinAttractionProximity() {
-		GpsUtil gpsUtil = new GpsUtil();
-		RewardsService rewardsService = new RewardsService(gpsUtil, new RewardCentral());
-		Attraction attraction = gpsUtil.getAttractions().get(0);
-		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
-	}*/
-	
-	/*@Ignore // Needs fixed - can throw ConcurrentModificationException
+
 	@Test
 	public void nearAllAttractions() {
 		UserService userService = new UserService(gpsProxy, rewardProxy);
-		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
+		rewardProxy.setProximityBuffer(Integer.MAX_VALUE);
 
 		InternalTestHelper.setInternalUserNumber(1);
 
@@ -74,6 +68,6 @@ public class TestRewardsService {
 		userService.tracker.stopTracking();
 
 		assertEquals(gpsProxy.getAttractions().size(), userRewards.size());
-	}*/
+	}
 	
 }
