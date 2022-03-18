@@ -1,9 +1,11 @@
 package tourGuide.service;
 
+import ch.qos.logback.core.CoreConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tourGuide.dto.*;
+import tourGuide.exception.UserNameNotFoundException;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.Location;
@@ -12,6 +14,7 @@ import tourGuide.proxy.GpsProxy;
 import tourGuide.proxy.RewardProxy;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
@@ -74,6 +77,8 @@ public class UserService {
     }
 
     public User getUser(String userName) {
+        if (!internalUserMap.containsKey(userName))
+            throw new UserNameNotFoundException(userName);
         return internalUserMap.get(userName);
     }
 
@@ -85,6 +90,13 @@ public class UserService {
         if(!internalUserMap.containsKey(user.getUserName())) {
             internalUserMap.put(user.getUserName(), user);
         }
+    }
+
+    public UserPreferences updateUserPreferences(String userName, UserPreferencesDTO userPreferencesDTO){
+        User user = getUser(userName);
+        UserPreferences userPreferences = new UserPreferences(userPreferencesDTO);
+        user.setUserPreferences(userPreferences);
+        return userPreferences;
     }
 
     public List<Provider> getTripDeals(User user) {

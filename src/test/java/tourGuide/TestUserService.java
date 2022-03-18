@@ -1,12 +1,12 @@
 package tourGuide;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +20,14 @@ import tourGuide.proxy.GpsProxy;
 import tourGuide.proxy.RewardProxy;
 import tourGuide.service.UserService;
 import tourGuide.user.User;
+import tourGuide.user.UserReward;
 import tripPricer.Provider;
 
 import static org.junit.Assert.*;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class TestTourGuideService {
+public class TestUserService {
 
     @Autowired
     RewardProxy rewardProxy;
@@ -128,6 +129,34 @@ public class TestTourGuideService {
         userService.tracker.stopTracking();
 		
 		assertEquals(10, providers.size());
+	}
+
+	@Test
+	public void userGetRewards() {
+		InternalTestHelper.setInternalUserNumber(0);
+		UserService userService = new UserService(gpsProxy, rewardProxy);
+
+		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		Attraction attraction = gpsProxy.getAttractions().get(0);
+		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+		userService.trackUserLocation(user);
+		List<UserReward> userRewards = user.getUserRewards();
+		userService.tracker.stopTracking();
+		assertTrue(userRewards.size() == 1);
+	}
+
+	@Test
+	public void nearAllAttractions() {
+		UserService userService = new UserService(gpsProxy, rewardProxy);
+		rewardProxy.setProximityBuffer(Integer.MAX_VALUE);
+
+		InternalTestHelper.setInternalUserNumber(1);
+
+		userService.calculateRewards(userService.getAllUsers().get(0));
+		List<UserReward> userRewards = userService.getUserRewards(userService.getAllUsers().get(0));
+		userService.tracker.stopTracking();
+
+		assertEquals(gpsProxy.getAttractions().size(), userRewards.size());
 	}
 	
 	

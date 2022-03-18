@@ -1,17 +1,18 @@
 package tourGuide;
 
 import com.jsoniter.output.JsonStream;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 import tourGuide.dto.CurrentLocationDTO;
 import tourGuide.dto.NearAttractionDTO;
+import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
 import tourGuide.proxy.GpsProxy;
 import tourGuide.proxy.RewardProxy;
 import tourGuide.service.UserService;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
 import tripPricer.Provider;
 
 import java.util.List;
@@ -63,6 +64,11 @@ public class UserController {
     public String getTripDeals(@RequestParam String userName) {
         List<Provider> providers = userService.getTripDeals(userService.getUser(userName));
         return JsonStream.serialize(providers);
+    }
+
+    @PutMapping("/update/preferences")
+    public UserPreferences updatePreferences(@RequestParam String userName, @RequestBody UserPreferencesDTO userPreferencesDTO){
+        return userService.updateUserPreferences(userName, userPreferencesDTO);
     }
 
 }
