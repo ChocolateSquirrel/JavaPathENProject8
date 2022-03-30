@@ -30,4 +30,7 @@ public interface RewardProxy {
 
     @PostMapping("setProximityBuffer")
     public void setProximityBuffer(@RequestBody int proximityBuffer);
+
+    @PostMapping("setDefaultProximityBuffer")
+    public void setDefaultProximityBuffer();
 }

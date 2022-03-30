@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 
+import org.javamoney.moneta.Money;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import tourGuide.dto.NearAttractionDTO;
+import tourGuide.dto.UserPreferencesDTO;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.Attraction;
 import tourGuide.model.VisitedLocation;
@@ -20,8 +23,11 @@ import tourGuide.proxy.GpsProxy;
 import tourGuide.proxy.RewardProxy;
 import tourGuide.service.UserService;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
+
+import javax.money.Monetary;
 
 import static org.junit.Assert.*;
 
@@ -143,6 +149,37 @@ public class TestUserService {
 		List<UserReward> userRewards = user.getUserRewards();
 		userService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
+	}
+
+	@Test
+	public void updateUserPreferences(){
+		InternalTestHelper.setInternalUserNumber(0);
+		UserService userService = new UserService(gpsProxy, rewardProxy);
+
+		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		UserPreferencesDTO userPreferencesDTO = new UserPreferencesDTO();
+		userPreferencesDTO.setCurrency("EUR");
+		userPreferencesDTO.setAttractionProximity(100);
+		userPreferencesDTO.setHighPrice(1000);
+		userPreferencesDTO.setLowerPrice(5);
+		userPreferencesDTO.setTripDuration(4);
+		userPreferencesDTO.setTicketQuantity(6);
+		userPreferencesDTO.setNumberOfAdults(2);
+		userPreferencesDTO.setNumberOfChildren(4);
+		userService.addUser(user);
+
+		userService.updateUserPreferences(user.getUserName(), userPreferencesDTO);
+		UserPreferences userPreferences = user.getUserPreferences();
+
+		userService.tracker.stopTracking();
+		assertEquals(userPreferences.getAttractionProximity(), 100);
+		assertEquals(userPreferences.getCurrency(), Monetary.getCurrency("EUR"));
+		assertEquals(userPreferences.getHighPricePoint(), Money.of(userPreferencesDTO.getHighPrice(), Monetary.getCurrency("EUR")));
+		assertEquals(userPreferences.getLowerPricePoint(), Money.of(userPreferencesDTO.getLowerPrice(), Monetary.getCurrency("EUR")));
+		assertEquals(userPreferences.getTripDuration(), 4);
+		assertEquals(userPreferences.getTicketQuantity(), 6);
+		assertEquals(userPreferences.getNumberOfAdults(), 2);
+		assertEquals(userPreferences.getNumberOfChildren(), 4);
 	}
 
 	@Test

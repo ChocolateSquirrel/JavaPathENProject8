@@ -57,7 +57,7 @@ public class TestPerformance {
 	@Test
 	public void highVolumeTrackLocation() {
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		InternalTestHelper.setInternalUserNumber(1);
+		InternalTestHelper.setInternalUserNumber(5);
 		UserService userService = new UserService(gpsProxy, rewardProxy);
 
 		List<User> allUsers = new ArrayList<>();

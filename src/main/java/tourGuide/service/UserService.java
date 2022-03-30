@@ -59,10 +59,7 @@ public class UserService {
     }
 
     public VisitedLocation getUserLocation(User user) {
-        VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
-                user.getLastVisitedLocation() :
-                trackUserLocation(user);
-        return visitedLocation;
+        return user.getVisitedLocations().stream().findFirst().orElse(null);
     }
 
     public List<CurrentLocationDTO> getAllCurrentLocations(){
@@ -178,7 +175,7 @@ public class UserService {
      **********************************************************************************/
     private static final String tripPricerApiKey = "test-server-api-key";
     // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
-    private final Map<String, User> internalUserMap = new HashMap<>();
+    private Map<String, User> internalUserMap = new HashMap<>();
     private void initializeInternalUsers() {
         IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -> {
             String userName = "internalUser" + i;

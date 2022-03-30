@@ -87,4 +87,8 @@ public class UserPreferences {
 		this.numberOfChildren = numberOfChildren;
 	}
 
+	public CurrencyUnit getCurrency() { return currency; }
+
+	public void setCurrency(CurrencyUnit currency) { this.currency = currency; }
+
 }

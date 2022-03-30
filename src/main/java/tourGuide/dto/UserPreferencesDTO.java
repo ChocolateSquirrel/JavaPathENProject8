@@ -20,3 +20,11 @@ public class UserPreferencesDTO {
 
     public UserPreferencesDTO() { }
 }
+
+/**
+ * {
+ *     "attractionProximity" : 5,
+ *     "currency" : "EUR",
+ *     "lowerPrice" : 2
+ * }
+ */
