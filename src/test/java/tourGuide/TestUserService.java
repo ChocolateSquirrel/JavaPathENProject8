@@ -46,6 +46,11 @@ public class TestUserService {
 		Locale.setDefault(Locale.US);
 	}
 
+	@Before
+	public void setUp(){
+		rewardProxy.setDefaultProximityBuffer();
+	}
+
 	@Test
 	public void getUserLocation() {
 		InternalTestHelper.setInternalUserNumber(0);
@@ -188,8 +193,10 @@ public class TestUserService {
 		rewardProxy.setProximityBuffer(Integer.MAX_VALUE);
 
 		InternalTestHelper.setInternalUserNumber(1);
+		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
+		userService.addUser(user);
 
-		userService.calculateRewards(userService.getAllUsers().get(0));
+		userService.trackUserLocation(userService.getAllUsers().get(0));
 		List<UserReward> userRewards = userService.getUserRewards(userService.getAllUsers().get(0));
 		userService.tracker.stopTracking();
 
