@@ -1,9 +1,7 @@
 package tourGuide;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 import org.javamoney.moneta.Money;
@@ -46,6 +44,27 @@ public class TestUserService {
 		Locale.setDefault(Locale.US);
 	}
 
+
+
+
+	private void waitVisitedLocation(User user, int size) {
+		while(user.getVisitedLocations().size() <size) {
+			try {
+				TimeUnit.MILLISECONDS.sleep(50);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
+	private void waitReward(User user, int size) {
+		while(user.getUserRewards().size() <size) {
+			try {
+				TimeUnit.MILLISECONDS.sleep(50);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
 	@Before
 	public void setUp(){
 		rewardProxy.setDefaultProximityBuffer();
@@ -57,9 +76,11 @@ public class TestUserService {
 		UserService userService = new UserService(gpsProxy, rewardProxy);
 		
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = userService.trackUserLocation(user);
+		userService.trackUserLocation(user);
 		userService.tracker.stopTracking();
-		assertTrue(visitedLocation.getUserId().equals(user.getUserId()));
+		waitVisitedLocation(user, 1);
+		assertEquals(user.getVisitedLocations().size(), 1);
+		//assertTrue(visitedLocation.getUserId().equals(user.getUserId()));
 	}
 	
 	@Test
@@ -107,11 +128,13 @@ public class TestUserService {
         UserService userService = new UserService(gpsProxy, rewardProxy);
 		
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = userService.trackUserLocation(user);
+		userService.trackUserLocation(user);
 
         userService.tracker.stopTracking();
-		
-		assertEquals(user.getUserId(), visitedLocation.getUserId());
+
+		waitVisitedLocation(user, 1);
+		assertEquals(user.getVisitedLocations().size(), 1);
+		//assertEquals(user.getUserId(), visitedLocation.getUserId());
 	}
 
 	@Test
@@ -120,12 +143,11 @@ public class TestUserService {
         UserService userService = new UserService(gpsProxy, rewardProxy);
 		
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
-		VisitedLocation visitedLocation = userService.trackUserLocation(user);
 		
 		List<NearAttractionDTO> attractions = userService.getNearByAttractions(user.getUserId(), 5);
 
         userService.tracker.stopTracking();
-		
+
 		assertEquals(5, attractions.size());
 	}
 	
@@ -153,6 +175,7 @@ public class TestUserService {
 		userService.trackUserLocation(user);
 		List<UserReward> userRewards = user.getUserRewards();
 		userService.tracker.stopTracking();
+		waitReward(user, 1);
 		assertTrue(userRewards.size() == 1);
 	}
 
@@ -200,6 +223,7 @@ public class TestUserService {
 		List<UserReward> userRewards = userService.getUserRewards(userService.getAllUsers().get(0));
 		userService.tracker.stopTracking();
 
+		waitReward(user, 26);
 		assertEquals(gpsProxy.getAttractions().size(), userRewards.size());
 	}
 	

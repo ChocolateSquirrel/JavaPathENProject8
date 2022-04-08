@@ -22,11 +22,14 @@ import tripPricer.TripPricer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
 public class UserService {
+
+    private ExecutorService executor = Executors.newFixedThreadPool(10000);
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final GpsProxy gpsProxy;
@@ -108,13 +111,39 @@ public class UserService {
         return providers;
     }
 
-    public VisitedLocation trackUserLocation(User user) {
+    public void trackUserLocation(User user) {
+        CompletableFuture.supplyAsync(() -> {
+            return gpsProxy.getUserLocation(user.getUserId().toString());
+                }, executor)
+                .thenAccept(visitedLocation -> {
+            user.addToVisitedLocations(visitedLocation);
+            calculateRewards(user);
+        });
 
+/*        Callable<VisitedLocation> visitedLocCallable = () -> gpsProxy.getUserLocation(user.getUserId().toString());
+        FutureTask<VisitedLocation> futureTask = new FutureTask<>(visitedLocCallable);
+        Thread t = new Thread(futureTask);
+        t.start();
+        try {
+            VisitedLocation visitedLoc = futureTask.get();
+            user.addToVisitedLocations(visitedLoc);
+            calculateRewards(user);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }*/
+
+        }
+
+/*
+    public VisitedLocation trackUserLocation(User user) {
         VisitedLocation visitedLocation = gpsProxy.getUserLocation(user.getUserId().toString());
         user.addToVisitedLocations(visitedLocation);
         calculateRewards(user);
         return visitedLocation;
     }
+*/
 
     public void calculateRewards(User user){
         UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());

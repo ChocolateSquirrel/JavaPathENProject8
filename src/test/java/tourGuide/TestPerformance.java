@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -54,10 +55,15 @@ public class TestPerformance {
 	@Autowired
 	GpsProxy gpsProxy;
 
+	@BeforeClass
+	public static void setup(){
+		InternalTestHelper.setInternalUserNumber(100000);
+	}
+
 	@Test
 	public void highVolumeTrackLocation() {
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		InternalTestHelper.setInternalUserNumber(5);
+		//InternalTestHelper.setInternalUserNumber(5);
 		UserService userService = new UserService(gpsProxy, rewardProxy);
 
 		List<User> allUsers = new ArrayList<>();
@@ -79,7 +85,7 @@ public class TestPerformance {
 	public void highVolumeGetRewards() {
 
 		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		InternalTestHelper.setInternalUserNumber(1);
+		//InternalTestHelper.setInternalUserNumber(1);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		UserService userService = new UserService(gpsProxy, rewardProxy);
