@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @Service
 public class UserService {
 
-    private ExecutorService executor = Executors.newFixedThreadPool(10000);
+    private ExecutorService executor = Executors.newFixedThreadPool(1000);
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final GpsProxy gpsProxy;
@@ -119,35 +119,15 @@ public class UserService {
             user.addToVisitedLocations(visitedLocation);
             calculateRewards(user);
         });
-
-/*        Callable<VisitedLocation> visitedLocCallable = () -> gpsProxy.getUserLocation(user.getUserId().toString());
-        FutureTask<VisitedLocation> futureTask = new FutureTask<>(visitedLocCallable);
-        Thread t = new Thread(futureTask);
-        t.start();
-        try {
-            VisitedLocation visitedLoc = futureTask.get();
-            user.addToVisitedLocations(visitedLoc);
-            calculateRewards(user);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
-
         }
-
-/*
-    public VisitedLocation trackUserLocation(User user) {
-        VisitedLocation visitedLocation = gpsProxy.getUserLocation(user.getUserId().toString());
-        user.addToVisitedLocations(visitedLocation);
-        calculateRewards(user);
-        return visitedLocation;
-    }
-*/
 
     public void calculateRewards(User user){
         UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
-        rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
+        CompletableFuture.supplyAsync(() -> {return rewardProxy.calculateRewards(userRewardDTO);}, executor)
+                        .thenAccept(userRewards -> {
+                            userRewards.forEach(u -> user.addUserReward(u));
+                        });
+        //rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
        /* UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
         List<UserReward> userRewards = rewardProxy.calculateRewards(userRewardDTO);
         for (UserReward userReward : userRewards){

@@ -37,6 +37,11 @@ public class UserController {
         return JsonStream.serialize(visitedLocation.getLocation());
     }
 
+    @RequestMapping("getAttractions")
+    public List<Attraction> getAttractions(){
+        return userService.getAttractions();
+    }
+
     @RequestMapping("/getNearestAttractions")
     public List<NearAttractionDTO> getNearestAttractions(@RequestParam String userName) {
         User user = userService.getUser(userName);

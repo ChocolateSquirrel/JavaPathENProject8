@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -74,6 +74,15 @@ public class TestPerformance {
 		for(User user : allUsers) {
 			userService.trackUserLocation(user);
 		}
+		for (User user : allUsers){
+			while(user.getVisitedLocations().size() < 1) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(50);
+				} catch (InterruptedException e) {
+				}
+			}
+			assertTrue(user.getVisitedLocations().size() >= 1);
+		}
 		stopWatch.stop();
 		userService.tracker.stopTracking();
 
@@ -83,20 +92,32 @@ public class TestPerformance {
 
 	@Test
 	public void highVolumeGetRewards() {
-
-		// Users should be incremented up to 100,000, and test finishes within 20 minutes
-		//InternalTestHelper.setInternalUserNumber(1);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		UserService userService = new UserService(gpsProxy, rewardProxy);
 		
-	    Attraction attraction = userService.getAttractions().get(0);
+	    Attraction attraction = gpsProxy.getAttractions().get(0);
 		List<User> allUsers = new ArrayList<>();
 		allUsers = userService.getAllUsers();
-		allUsers.forEach(u -> u.addToVisitedLocations(new VisitedLocation(u.getUserId(), attraction, new Date())));
-	     
-	    allUsers.forEach(u -> userService.calculateRewards(u));
-	    
+
+		for(User user : allUsers) {
+			user.clearVisitedLocations();
+			user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+		}
+
+		for (User user : allUsers){
+			userService.calculateRewards(user);
+		}
+
+		for (User user : allUsers){
+			while(user.getUserRewards().size() < 1) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(50);
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);
 		}

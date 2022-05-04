@@ -174,6 +174,7 @@ public class TestUserService {
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		userService.trackUserLocation(user);
 		List<UserReward> userRewards = user.getUserRewards();
+
 		userService.tracker.stopTracking();
 		waitReward(user, 1);
 		assertTrue(userRewards.size() == 1);
