@@ -44,9 +44,6 @@ public class TestUserService {
 		Locale.setDefault(Locale.US);
 	}
 
-
-
-
 	private void waitVisitedLocation(User user, int size) {
 		while(user.getVisitedLocations().size() <size) {
 			try {
@@ -80,7 +77,6 @@ public class TestUserService {
 		userService.tracker.stopTracking();
 		waitVisitedLocation(user, 1);
 		assertEquals(user.getVisitedLocations().size(), 1);
-		//assertTrue(visitedLocation.getUserId().equals(user.getUserId()));
 	}
 	
 	@Test
@@ -134,7 +130,6 @@ public class TestUserService {
 
 		waitVisitedLocation(user, 1);
 		assertEquals(user.getVisitedLocations().size(), 1);
-		//assertEquals(user.getUserId(), visitedLocation.getUserId());
 	}
 
 	@Test

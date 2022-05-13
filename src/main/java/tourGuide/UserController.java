@@ -71,6 +71,11 @@ public class UserController {
         return JsonStream.serialize(providers);
     }
 
+    @RequestMapping("/getPreferences")
+    public UserPreferences getPreferences(@RequestParam String userName) {
+        return userService.getPreferences(userName);
+    }
+
     @PutMapping("/update/preferences")
     public UserPreferences updatePreferences(@RequestParam String userName, @RequestBody UserPreferencesDTO userPreferencesDTO){
         return userService.updateUserPreferences(userName, userPreferencesDTO);

@@ -96,6 +96,11 @@ public class UserService {
         }
     }
 
+    public UserPreferences getPreferences(String userName){
+        User user = getUser(userName);
+        return user.getUserPreferences();
+    }
+
     public UserPreferences updateUserPreferences(String userName, UserPreferencesDTO userPreferencesDTO){
         User user = getUser(userName);
         UserPreferences userPreferences = new UserPreferences(userPreferencesDTO);
