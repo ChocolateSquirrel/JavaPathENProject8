@@ -10,7 +10,7 @@ import tourGuide.user.UserReward;
 
 import java.util.List;
 
-@FeignClient(name = "ms-rewards", url = "localhost:7070")
+@FeignClient(name = "ms-rewards", url = "ms-rewards:7070")
 public interface RewardProxy {
 
     @GetMapping("getRewardPoints/{attractionId}/{userId}")

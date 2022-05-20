@@ -1,32 +1,33 @@
 version: '3'
 
 services:
-    ms_user:
+    ms-user:
         depends_on:
-            - ms_rewards
+            - ms-rewards
         image: ms_user
-        container_name: ms_user
-        #ports: 
-         #   - 80:8080
+        container_name: ms-user
+        hostname: ms-user
+        ports: 
+            - 80:8080
         restart: always
-        network_mode: host
         
-    ms_rewards:
+    ms-rewards:
         depends_on: 
-            - ms_gps
+            - ms-gps
         image: ms_rewards
-        container_name: ms_rewards
-        #   - 7070:7070
+        container_name: ms-rewards
+        hostname: ms-rewards
+        ports: 
+           - 7070:7070
         restart: always
-        network_mode: host
         
-    ms_gps:
+    ms-gps:
         image: ms_gps
-        container_name: ms_gps
-       # ports:
-        #    - 6060:6060
+        container_name: ms-gps
+        hostname: ms-gps
+        ports:
+            - 6060:6060
         restart: always
-        network_mode: host
         
         
         
