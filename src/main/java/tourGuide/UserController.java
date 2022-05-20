@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @RequestMapping("/getPreferences")
-    public UserPreferences getPreferences(@RequestParam String userName) {
+    public UserPreferencesDTO getPreferences(@RequestParam String userName) {
         return userService.getPreferences(userName);
     }
 

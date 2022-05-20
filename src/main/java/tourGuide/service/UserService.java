@@ -62,10 +62,6 @@ public class UserService {
     }
 
     public VisitedLocation getUserLocation(User user) {
- /*       VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
-                user.getLastVisitedLocation() :
-                trackUserLocation(user);
-        return visitedLocation;*/
         return user.getVisitedLocations().stream().findFirst().orElse(null);
     }
 
@@ -96,9 +92,18 @@ public class UserService {
         }
     }
 
-    public UserPreferences getPreferences(String userName){
-        User user = getUser(userName);
-        return user.getUserPreferences();
+    public UserPreferencesDTO getPreferences(String userName){
+        UserPreferences userPref = getUser(userName).getUserPreferences();
+        UserPreferencesDTO userPrefDTO = new UserPreferencesDTO();
+        userPrefDTO.setNumberOfChildren(userPref.getNumberOfChildren());
+        userPrefDTO.setNumberOfAdults(userPref.getNumberOfAdults());
+        userPrefDTO.setAttractionProximity(userPref.getAttractionProximity());
+        userPrefDTO.setTripDuration(userPref.getTripDuration());
+        userPrefDTO.setCurrency(String.valueOf(userPref.getCurrency()));
+        userPrefDTO.setLowerPrice((int) userPref.getLowerPricePoint().getNumber().longValueExact());
+        userPrefDTO.setHighPrice((int) userPref.getHighPricePoint().getNumber().longValueExact());
+        userPrefDTO.setTicketQuantity(userPref.getTicketQuantity());
+        return userPrefDTO;
     }
 
     public UserPreferences updateUserPreferences(String userName, UserPreferencesDTO userPreferencesDTO){
@@ -132,12 +137,6 @@ public class UserService {
                         .thenAccept(userRewards -> {
                             userRewards.forEach(u -> user.addUserReward(u));
                         });
-        //rewardProxy.calculateRewards(userRewardDTO).forEach(user::addUserReward);
-       /* UserRewardDTO userRewardDTO = new UserRewardDTO(user.getVisitedLocations(), user.getUserId());
-        List<UserReward> userRewards = rewardProxy.calculateRewards(userRewardDTO);
-        for (UserReward userReward : userRewards){
-            user.addUserReward(userReward);
-        }*/
     }
 
     public List<NearAttractionDTO> getNearByAttractions(UUID userId, int number) {
@@ -172,10 +171,6 @@ public class UserService {
             attractionsDTOList.add(attractionDTO);
         }
         return attractionsDTOList;
-    }
-
-    public void setProximityBuffer(int proximityBuffer){
-
     }
 
 
