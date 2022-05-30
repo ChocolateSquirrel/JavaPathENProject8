@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.javamoney.moneta.Money;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -116,6 +117,13 @@ public class TestUserService {
 		
 		assertTrue(allUsers.contains(user));
 		assertTrue(allUsers.contains(user2));
+	}
+
+	@Test
+	public void getAllCurrentLocations(){
+		InternalTestHelper.setInternalUserNumber(10);
+		UserService userService = new UserService(gpsProxy, rewardProxy);
+		assertEquals(10, userService.getAllCurrentLocations().size());
 	}
 	
 	@Test
