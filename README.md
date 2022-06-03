@@ -15,7 +15,7 @@ Tourguide uses 3 micro services :
 * ms_gps (https://github.com/ChocolateSquirrel/ms-gps/tree/dev)
 * ms_rewards (https://github.com/ChocolateSquirrel/ms-rewards/tree/dev)
 * ms_user  
-![](diagrammeUML.drawio (1).png)
+![](diagram.png)
 --------------------------------
 ###Deployment with Docker :
 * Build the 3 jar (ms_gps, ms_rewards, ms_user)
